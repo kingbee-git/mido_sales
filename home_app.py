@@ -37,8 +37,8 @@ def home_app():
         count_delta_color = "inverse" if count_delta < 0 else "normal" if count_delta > 0 else "off"
 
         kpi1.metric(
-            label="건 수",
-            value=f"{today_count:,}" if today_count > 0 else "데이터 없음",
+            label="건 수(건)",
+            value=f"{today_count:,} 건" if today_count > 0 else "데이터 없음",
             delta=count_delta_text,
             delta_color=count_delta_color
         )
@@ -51,7 +51,7 @@ def home_app():
 
         kpi2.metric(
             label="금액 합(₩)",
-            value=f"{today_amount:,}" if today_amount > 0 else "데이터 없음",
+            value=f"₩ {today_amount:,}" if today_amount > 0 else "데이터 없음",
             delta=amount_delta_text,
             delta_color=amount_delta_color
         )
@@ -64,7 +64,7 @@ def home_app():
 
         kpi3.metric(
             label="수량 합(m²)",
-            value=f"{today_sum:,}" if today_sum > 0 else "데이터 없음",
+            value=f"{today_sum:,} m²" if today_sum > 0 else "데이터 없음",
             delta=sum_delta_text,
             delta_color=sum_delta_color
         )
