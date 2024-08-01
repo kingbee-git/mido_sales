@@ -98,6 +98,19 @@ def load_users_data():
     return users
 
 @st.cache_data(ttl=3600)
+def load_budget_data():
+    budget_df = get_dataframe_from_bigquery('RAW_DATA', 'g2b_data')
+
+    return budget_df
+
+@st.cache_data(ttl=3600)
+def load_edu_budget_data():
+    edu_budget_df = get_dataframe_from_bigquery('RAW_DATA', 'edu_budget_data')
+
+    return edu_budget_df
+
+
+@st.cache_data(ttl=3600)
 def load_g2b_data():
     g2b_df = get_dataframe_from_bigquery('RAW_DATA', 'g2b_data')
 
