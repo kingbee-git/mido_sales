@@ -5,6 +5,7 @@ import numpy as np
 import pandas as pd
 from datetime import datetime, timedelta
 import plotly.express as px
+import plotly.graph_objects as go
 
 import utils
 
@@ -42,31 +43,32 @@ def home_app():
             delta_color=count_delta_color
         )
 
-        today_sum = today_data['수량'].sum()
-        yesterday_sum = yesterday_data['수량'].sum()
-        sum_delta = today_sum - yesterday_sum
-        sum_delta_text = f"{sum_delta:+,}" if sum_delta != 0 else ""
-        sum_delta_color = "inverse" if sum_delta < 0 else "normal" if sum_delta > 0 else "off"
-
-        kpi2.metric(
-            label="수량 합(m²)",
-            value=f"{today_sum:,}" if today_sum > 0 else "데이터 없음",
-            delta=sum_delta_text,
-            delta_color=sum_delta_color
-        )
-
         today_amount = today_data['금액'].sum()
         yesterday_amount = yesterday_data['금액'].sum()
         amount_delta = today_amount - yesterday_amount
         amount_delta_text = f"{amount_delta:+,}" if amount_delta != 0 else ""
         amount_delta_color = "inverse" if amount_delta < 0 else "normal" if amount_delta > 0 else "off"
 
-        kpi3.metric(
+        kpi2.metric(
             label="금액 합(₩)",
             value=f"{today_amount:,}" if today_amount > 0 else "데이터 없음",
             delta=amount_delta_text,
             delta_color=amount_delta_color
         )
+
+        today_sum = today_data['수량'].sum()
+        yesterday_sum = yesterday_data['수량'].sum()
+        sum_delta = today_sum - yesterday_sum
+        sum_delta_text = f"{sum_delta:+,}" if sum_delta != 0 else ""
+        sum_delta_color = "inverse" if sum_delta < 0 else "normal" if sum_delta > 0 else "off"
+
+        kpi3.metric(
+            label="수량 합(m²)",
+            value=f"{today_sum:,}" if today_sum > 0 else "데이터 없음",
+            delta=sum_delta_text,
+            delta_color=sum_delta_color
+        )
+
 
     st.markdown("---")
 
@@ -125,34 +127,39 @@ def home_app():
             '금액 비율': ["100%", f"{midoplus_amount_ratio:.2%}", f"{ecoground_amount_ratio:.2%}"]
         })
 
-        fig1 = px.bar(
-            comparison_data,
-            x='업체명',
-            y='금액',
-            text='금액 비율',
-            labels={'금액': '금액'},
-            color='업체명'
-        )
+        fig = go.Figure()
 
-        fig1.add_scatter(
+        fig.add_trace(go.Bar(
+            x=comparison_data['업체명'],
+            y=comparison_data['금액'],
+            name='금액',
+            text=[f'업체명: {company}<br>금액: {amount:,}<br>금액 비율: {ratio}' for company, amount, ratio in
+                  zip(comparison_data['업체명'], comparison_data['금액'], comparison_data['금액 비율'])],
+            textposition='none',
+            marker_color='blue',
+            opacity=0.6
+        ))
+
+        fig.add_trace(go.Scatter(
             x=comparison_data['업체명'],
             y=comparison_data['건수'],
-            mode='lines+markers',
             name='건수',
+            mode='lines+markers',
+            text=[f'업체명: {company}<br>건수: {count:,}<br>건수 비율: {ratio}' for company, count, ratio in
+                  zip(comparison_data['업체명'], comparison_data['건수'], comparison_data['건수 비율'])],
             yaxis='y2',
             line=dict(color='red', width=2, dash='dot'),
-            marker=dict(size=8, color='red', opacity=0.7),
-            text=comparison_data['건수 비율']
-        )
+            marker=dict(size=8, color='red', opacity=0.7)
+        ))
 
-        fig1.update_layout(
+        fig.update_layout(
             xaxis_title='업체',
             yaxis_title='금액',
             yaxis2=dict(
                 title='건수',
                 overlaying='y',
                 side='right',
-                showgrid = False
+                showgrid=False
             ),
             xaxis=dict(
                 tickmode='array',
@@ -161,7 +168,7 @@ def home_app():
             )
         )
 
-        st.plotly_chart(fig1, use_container_width=True)
+        st.plotly_chart(fig, use_container_width=True)
 
     with fig2:
         st.markdown("### 지도")
