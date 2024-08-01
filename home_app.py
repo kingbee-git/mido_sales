@@ -131,7 +131,7 @@ def home_app():
 
         fig.add_trace(go.Bar(
             x=comparison_data['업체명'],
-            y=comparison_data['금액'],
+            y=comparison_data['금액 비율'],
             name='금액',
             text=[f'업체명: {company}<br>금액: {amount:,}<br>금액 비율: {ratio}' for company, amount, ratio in
                   zip(comparison_data['업체명'], comparison_data['금액'], comparison_data['금액 비율'])],
@@ -142,25 +142,18 @@ def home_app():
 
         fig.add_trace(go.Scatter(
             x=comparison_data['업체명'],
-            y=comparison_data['건수'],
+            y=comparison_data['건수 비율'],
             name='건수',
             mode='lines+markers',
             text=[f'업체명: {company}<br>건수: {count:,}<br>건수 비율: {ratio}' for company, count, ratio in
                   zip(comparison_data['업체명'], comparison_data['건수'], comparison_data['건수 비율'])],
-            yaxis='y2',
             line=dict(color='red', width=2, dash='dot'),
             marker=dict(size=8, color='red', opacity=0.7)
         ))
 
         fig.update_layout(
             xaxis_title='업체',
-            yaxis_title='금액',
-            yaxis2=dict(
-                title='건수',
-                overlaying='y',
-                side='right',
-                showgrid=False
-            ),
+            yaxis_title='금액/건수',
             xaxis=dict(
                 tickmode='array',
                 tickvals=[0, 1, 2],
