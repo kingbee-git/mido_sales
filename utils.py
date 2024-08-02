@@ -309,7 +309,6 @@ def load_news_data():
 
     news_df['기사날짜'] = pd.to_datetime(news_df['기사날짜'])
     news_df = news_df[news_df['기사날짜'].dt.date >= latest]
-    news_df['기사날짜'] = pd.to_datetime(news_df['기사날짜']).dt.strftime('%Y-%m-%d')
 
     # 키워드 중요도 리스트
     keywords = ['인조잔디','예산', '추경']

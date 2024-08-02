@@ -2,6 +2,7 @@
 import streamlit as st
 
 import pandas as pd
+from datetime import datetime, timedelta
 
 import utils
 
@@ -12,7 +13,9 @@ def make_clickable(val):
 def news_app():
     news_df = utils.load_news_data()
 
-    st.header("뉴스")
+    today = datetime.now().date()
+
+    st.header(f"뉴스 ({news_df['기사날짜'].min().strftime('%Y-%m-%d')} ~ {today})")
     st.markdown("---")
 
     key_column = st.selectbox(
@@ -28,6 +31,9 @@ def news_app():
         filtered_data = news_df[news_df[key_column].str.contains(search_term, case=False, na=False)]
     else:
         filtered_data = news_df
+
+
+    news_df['기사날짜'] = pd.to_datetime(news_df['기사날짜']).dt.strftime('%Y-%m-%d')
 
     st.data_editor(
         filtered_data,
