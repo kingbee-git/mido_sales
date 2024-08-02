@@ -22,7 +22,7 @@ def home_app():
     current_year_filtered_data = current_year_data[current_year_data['업체명'].str.contains('미도플러스|에코그라운드')]
 
     today = datetime.now().date()
-    yesterday = today - timedelta(days=1)
+    yesterday = today - timedelta(days=2)
 
     yesterday_data = current_year_filtered_data[current_year_filtered_data['납품요구접수일자'].dt.date <= yesterday]
     today_data = current_year_filtered_data[current_year_filtered_data['납품요구접수일자'].dt.date <= today]
@@ -101,67 +101,79 @@ def home_app():
     with fig1:
         st.markdown("### 차트")
 
-        total_count = current_year_data['수량'].count()
-        total_amount = current_year_data['금액'].sum()
+        # total_count = current_year_data['수량'].count()
+        # total_amount = current_year_data['금액'].sum()
+        #
+        # midoplus_data = current_year_data[current_year_data['업체명'].str.contains('미도플러스')]
+        # ecoground_data = current_year_data[current_year_data['업체명'].str.contains('에코그라운드')]
+        #
+        # midoplus_count = midoplus_data['수량'].count()
+        # midoplus_amount = midoplus_data['금액'].sum()
+        #
+        # ecoground_count = ecoground_data['수량'].count()
+        # ecoground_amount = ecoground_data['금액'].sum()
+        #
+        # midoplus_count_ratio = midoplus_count / total_count if total_count > 0 else 0
+        # midoplus_amount_ratio = midoplus_amount / total_amount if total_amount > 0 else 0
+        #
+        # ecoground_count_ratio = ecoground_count / total_count if total_count > 0 else 0
+        # ecoground_amount_ratio = ecoground_amount / total_amount if total_amount > 0 else 0
+        #
+        # comparison_data = pd.DataFrame({
+        #     '업체명': ['전체', '미도플러스', '에코그라운드'],
+        #     '건수': [total_count, midoplus_count, ecoground_count],
+        #     '금액': [total_amount, midoplus_amount, ecoground_amount],
+        #     '건수 비율': ["100%", f"{midoplus_count_ratio:.2%}", f"{ecoground_count_ratio:.2%}"],
+        #     '금액 비율': ["100%", f"{midoplus_amount_ratio:.2%}", f"{ecoground_amount_ratio:.2%}"]
+        # })
+        #
+        # fig = go.Figure()
+        #
+        # fig.add_trace(go.Bar(
+        #     x=comparison_data['업체명'],
+        #     y=comparison_data['금액 비율'],
+        #     name='금액',
+        #     text=[f'업체명: {company}<br>금액: {amount:,}<br>금액 비율: {ratio}' for company, amount, ratio in
+        #           zip(comparison_data['업체명'], comparison_data['금액'], comparison_data['금액 비율'])],
+        #     textposition='none',
+        #     marker_color='blue',
+        #     opacity=0.6
+        # ))
+        #
+        # fig.add_trace(go.Scatter(
+        #     x=comparison_data['업체명'],
+        #     y=comparison_data['건수 비율'],
+        #     name='건수',
+        #     mode='lines+markers',
+        #     text=[f'업체명: {company}<br>건수: {count:,}<br>건수 비율: {ratio}' for company, count, ratio in
+        #           zip(comparison_data['업체명'], comparison_data['건수'], comparison_data['건수 비율'])],
+        #     line=dict(color='red', width=2, dash='dot'),
+        #     marker=dict(size=8, color='red', opacity=0.7)
+        # ))
+        #
+        # fig.update_layout(
+        #     xaxis_title='업체',
+        #     yaxis_title='금액/건수',
+        #     xaxis=dict(
+        #         tickmode='array',
+        #         tickvals=[0, 1, 2],
+        #         ticktext=['전체', '미도플러스', '에코그라운드']
+        #     )
+        # )
+        #
+        # st.plotly_chart(fig, use_container_width=True)
 
-        midoplus_data = current_year_data[current_year_data['업체명'].str.contains('미도플러스')]
-        ecoground_data = current_year_data[current_year_data['업체명'].str.contains('에코그라운드')]
+        company_amounts = current_year_data.groupby('업체명')['금액'].sum().reset_index()
 
-        midoplus_count = midoplus_data['수량'].count()
-        midoplus_amount = midoplus_data['금액'].sum()
+        fig_amounts = go.Figure(data=[go.Pie(labels=company_amounts['업체명'],
+                                             values=company_amounts['금액'],
+                                             name='업체별 금액',
+                                             textinfo='label+percent',
+                                             textposition='outside',
+                                             hole=0.3)])
 
-        ecoground_count = ecoground_data['수량'].count()
-        ecoground_amount = ecoground_data['금액'].sum()
+        st.plotly_chart(fig_amounts)
 
-        midoplus_count_ratio = midoplus_count / total_count if total_count > 0 else 0
-        midoplus_amount_ratio = midoplus_amount / total_amount if total_amount > 0 else 0
-
-        ecoground_count_ratio = ecoground_count / total_count if total_count > 0 else 0
-        ecoground_amount_ratio = ecoground_amount / total_amount if total_amount > 0 else 0
-
-        comparison_data = pd.DataFrame({
-            '업체명': ['전체', '미도플러스', '에코그라운드'],
-            '건수': [total_count, midoplus_count, ecoground_count],
-            '금액': [total_amount, midoplus_amount, ecoground_amount],
-            '건수 비율': ["100%", f"{midoplus_count_ratio:.2%}", f"{ecoground_count_ratio:.2%}"],
-            '금액 비율': ["100%", f"{midoplus_amount_ratio:.2%}", f"{ecoground_amount_ratio:.2%}"]
-        })
-
-        fig = go.Figure()
-
-        fig.add_trace(go.Bar(
-            x=comparison_data['업체명'],
-            y=comparison_data['금액 비율'],
-            name='금액',
-            text=[f'업체명: {company}<br>금액: {amount:,}<br>금액 비율: {ratio}' for company, amount, ratio in
-                  zip(comparison_data['업체명'], comparison_data['금액'], comparison_data['금액 비율'])],
-            textposition='none',
-            marker_color='blue',
-            opacity=0.6
-        ))
-
-        fig.add_trace(go.Scatter(
-            x=comparison_data['업체명'],
-            y=comparison_data['건수 비율'],
-            name='건수',
-            mode='lines+markers',
-            text=[f'업체명: {company}<br>건수: {count:,}<br>건수 비율: {ratio}' for company, count, ratio in
-                  zip(comparison_data['업체명'], comparison_data['건수'], comparison_data['건수 비율'])],
-            line=dict(color='red', width=2, dash='dot'),
-            marker=dict(size=8, color='red', opacity=0.7)
-        ))
-
-        fig.update_layout(
-            xaxis_title='업체',
-            yaxis_title='금액/건수',
-            xaxis=dict(
-                tickmode='array',
-                tickvals=[0, 1, 2],
-                ticktext=['전체', '미도플러스', '에코그라운드']
-            )
-        )
-
-        st.plotly_chart(fig, use_container_width=True)
 
     with fig2:
         st.markdown("### 지도")

@@ -99,7 +99,14 @@ def load_users_data():
 
 @st.cache_data(ttl=3600)
 def load_budget_data():
-    budget_df = get_dataframe_from_bigquery('RAW_DATA', 'g2b_data')
+    budget_df = get_dataframe_from_bigquery('RAW_DATA', 'edu_budget_data')
+
+    columns_to_view = [
+        '도광역시', '시군구', '구분', '과업명', '금액', '면적', '예산집행'
+    ]
+
+    budget_df = budget_df[columns_to_view]
+    budget_df = budget_df.sort_values(by=['도광역시', '시군구'])
 
     return budget_df
 
@@ -107,7 +114,135 @@ def load_budget_data():
 def load_edu_budget_data():
     edu_budget_df = get_dataframe_from_bigquery('RAW_DATA', 'edu_budget_data')
 
+    numeric_columns = ['금액', '면적']
+
+    for column in numeric_columns:
+        if column in edu_budget_df.columns:
+            edu_budget_df[column] = edu_budget_df[column].str.replace(',', '')
+            edu_budget_df[column] = pd.to_numeric(edu_budget_df[column], errors='coerce')
+
+    columns_to_view = [
+        '도광역시', '시군구', '구분', '과업명', '금액', '면적', '예산집행'
+    ]
+
+    edu_budget_df = edu_budget_df[columns_to_view]
+    edu_budget_df = edu_budget_df.sort_values(by=['도광역시', '시군구'])
+
     return edu_budget_df
+
+@st.cache_data(ttl=3600)
+def load_info_con_data():
+    # 공사입찰/공사낙찰
+
+    bir_con_df = get_dataframe_from_bigquery('RAW_DATA', 'bid_con_data')
+    # suc_con_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_con_data')
+
+    today = datetime.now().date()
+
+    bir_con_df['입력일'] = pd.to_datetime(bir_con_df['입력일'], format='%y.%m.%d', errors='coerce')
+    bir_con_df['투찰마감'] = pd.to_datetime(bir_con_df['투찰마감'], format='%y.%m.%d(%H:%M)', errors='coerce')
+
+    bir_con_df['개찰일'] = bir_con_df['개찰일'].astype(str)
+    bir_con_df['개찰일_full'] = pd.to_datetime(bir_con_df['개찰일'], format='%y.%m.%d(%H:%M)', errors='coerce')
+
+    mask = bir_con_df['개찰일_full'].isna()
+
+    bir_con_df.loc[mask, '개찰일_fallback'] = pd.to_datetime(bir_con_df.loc[mask, '개찰일'], format='%y.%m.%d', errors='coerce')
+    bir_con_df['개찰일'] = bir_con_df['개찰일_full'].combine_first(bir_con_df['개찰일_fallback'])
+    bir_con_df.drop(columns=['개찰일_full', '개찰일_fallback'], inplace=True)
+
+    bir_con_df = bir_con_df[bir_con_df['투찰마감'].dt.date >= today]
+
+    bir_con_df['입력일'] = pd.to_datetime(bir_con_df['입력일']).dt.strftime('%Y-%m-%d')
+    bir_con_df['투찰마감'] = pd.to_datetime(bir_con_df['투찰마감']).dt.strftime('%Y-%m-%d')
+    bir_con_df['개찰일'] = pd.to_datetime(bir_con_df['개찰일']).dt.strftime('%Y-%m-%d')
+
+    numeric_columns = ['추정가격', '기초금액']
+
+    for column in numeric_columns:
+        if column in bir_con_df.columns:
+            bir_con_df[column] = bir_con_df[column].str.replace(',', '')
+            bir_con_df[column] = pd.to_numeric(bir_con_df[column], errors='coerce')
+
+    info_con_df = bir_con_df.sort_values(by='입력일', ascending=False)
+
+    return info_con_df
+
+@st.cache_data(ttl=3600)
+def load_info_ser_data():
+    # 용역입찰/용역낙찰
+
+    bir_ser_df = get_dataframe_from_bigquery('RAW_DATA', 'bid_ser_data')
+    # suc_ser_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_ser_data')
+
+    today = datetime.now().date()
+
+    bir_ser_df['입력일'] = pd.to_datetime(bir_ser_df['입력일'], format='%y.%m.%d', errors='coerce')
+    bir_ser_df['투찰마감'] = pd.to_datetime(bir_ser_df['투찰마감'], format='%y.%m.%d(%H:%M)', errors='coerce')
+
+    bir_ser_df['개찰일'] = bir_ser_df['개찰일'].astype(str)
+    bir_ser_df['개찰일_full'] = pd.to_datetime(bir_ser_df['개찰일'], format='%y.%m.%d(%H:%M)', errors='coerce')
+
+    mask = bir_ser_df['개찰일_full'].isna()
+
+    bir_ser_df.loc[mask, '개찰일_fallback'] = pd.to_datetime(bir_ser_df.loc[mask, '개찰일'], format='%y.%m.%d', errors='coerce')
+    bir_ser_df['개찰일'] = bir_ser_df['개찰일_full'].combine_first(bir_ser_df['개찰일_fallback'])
+    bir_ser_df.drop(columns=['개찰일_full', '개찰일_fallback'], inplace=True)
+
+    bir_ser_df = bir_ser_df[bir_ser_df['투찰마감'].dt.date >= today]
+
+    bir_ser_df['입력일'] = pd.to_datetime(bir_ser_df['입력일']).dt.strftime('%Y-%m-%d')
+    bir_ser_df['투찰마감'] = pd.to_datetime(bir_ser_df['투찰마감']).dt.strftime('%Y-%m-%d')
+    bir_ser_df['개찰일'] = pd.to_datetime(bir_ser_df['개찰일']).dt.strftime('%Y-%m-%d')
+
+    numeric_columns = ['추정가격', '기초금액']
+
+    for column in numeric_columns:
+        if column in bir_ser_df.columns:
+            bir_ser_df[column] = bir_ser_df[column].str.replace(',', '')
+            bir_ser_df[column] = pd.to_numeric(bir_ser_df[column], errors='coerce')
+
+    info_ser_df = bir_ser_df.sort_values(by='입력일', ascending=False)
+
+    return info_ser_df
+
+@st.cache_data(ttl=3600)
+def load_info_pur_data():
+    # 구매입찰/구매낙찰
+
+    bir_pur_df = get_dataframe_from_bigquery('RAW_DATA', 'bid_pur_data')
+    # suc_pur_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_pur_data')
+
+    today = datetime.now().date()
+
+    bir_pur_df['참가마감'] = pd.to_datetime(bir_pur_df['참가마감'], format='%y.%m.%d(%H:%M)', errors='coerce')
+    bir_pur_df['투찰마감'] = pd.to_datetime(bir_pur_df['투찰마감'], format='%y.%m.%d(%H:%M)', errors='coerce')
+
+    bir_pur_df['개찰일'] = bir_pur_df['개찰일'].astype(str)
+    bir_pur_df['개찰일_full'] = pd.to_datetime(bir_pur_df['개찰일'], format='%y.%m.%d(%H:%M)', errors='coerce')
+
+    mask = bir_pur_df['개찰일_full'].isna()
+
+    bir_pur_df.loc[mask, '개찰일_fallback'] = pd.to_datetime(bir_pur_df.loc[mask, '개찰일'], format='%y.%m.%d', errors='coerce')
+    bir_pur_df['개찰일'] = bir_pur_df['개찰일_full'].combine_first(bir_pur_df['개찰일_fallback'])
+    bir_pur_df.drop(columns=['개찰일_full', '개찰일_fallback'], inplace=True)
+
+    bir_pur_df = bir_pur_df[bir_pur_df['개찰일'].dt.date >= today]
+
+    bir_pur_df['참가마감'] = pd.to_datetime(bir_pur_df['참가마감']).dt.strftime('%Y-%m-%d')
+    bir_pur_df['투찰마감'] = pd.to_datetime(bir_pur_df['투찰마감']).dt.strftime('%Y-%m-%d')
+    bir_pur_df['개찰일'] = pd.to_datetime(bir_pur_df['개찰일']).dt.strftime('%Y-%m-%d')
+
+    numeric_columns = ['기초금액']
+
+    for column in numeric_columns:
+        if column in bir_pur_df.columns:
+            bir_pur_df[column] = bir_pur_df[column].str.replace(',', '')
+            bir_pur_df[column] = pd.to_numeric(bir_pur_df[column], errors='coerce')
+
+    info_pur_df = bir_pur_df.sort_values(by='투찰마감', ascending=False)
+
+    return info_pur_df
 
 
 @st.cache_data(ttl=3600)
@@ -164,3 +299,39 @@ def load_g2b_data():
     g2b_df[['위도', '경도']] = g2b_df.apply(get_lat_long, axis=1, result_type='expand')
 
     return g2b_df
+
+@st.cache_data(ttl=3600)
+def load_news_data():
+    news_df = get_dataframe_from_bigquery('RAW_DATA', 'news_data').sort_values('기사날짜', ascending=False)
+
+    today = datetime.now().date()
+    latest = today - timedelta(days=3)
+
+    news_df['기사날짜'] = pd.to_datetime(news_df['기사날짜'])
+    news_df = news_df[news_df['기사날짜'].dt.date >= latest]
+    news_df['기사날짜'] = pd.to_datetime(news_df['기사날짜']).dt.strftime('%Y-%m-%d')
+
+    # 키워드 중요도 리스트
+    keywords = ['인조잔디','예산', '추경']
+    keyword_importance = {keyword: i for i, keyword in enumerate(keywords)}
+
+    def get_importance(name):
+        if name is None:
+            return float('inf')  # name이 None인 경우 맨 뒤로 정렬
+        for keyword, importance in keyword_importance.items():
+            if keyword in name:
+                return importance
+        return float('inf')  # 키워드가 없는 경우 맨 뒤로 정렬
+
+    # 키워드 중요도 점수 컬럼 추가
+    news_df['중요도'] = news_df['내용'].apply(get_importance)
+    news_df = news_df.sort_values(by='중요도')
+    news_df = news_df.drop(columns=['중요도'])
+
+    columns_to_view = [
+        '기사날짜', 'URL', '제목', '내용'
+    ]
+
+    news_df = news_df[columns_to_view]
+
+    return news_df

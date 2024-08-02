@@ -107,25 +107,25 @@ def main():
                                    )
 
         if selected == "납품 현황":
-            utils.log_user_action(st.session_state['username'], "viewed HOME", "mido_test", "logs")
+            utils.log_user_action(st.session_state['username'], "viewed HOME", "SERVICE_DATA", "logs")
             home_app.home_app()
         elif selected == "사업 현황":
-            utils.log_user_action(st.session_state['username'], "viewed list", "mido_test", "logs")
+            utils.log_user_action(st.session_state['username'], "viewed list", "SERVICE_DATA", "logs")
             listup_app.listup_app()
         elif selected == "지자체 예산서":
-            utils.log_user_action(st.session_state['username'], "viewed 지자체 예산서", "mido_test", "logs")
+            utils.log_user_action(st.session_state['username'], "viewed 지자체 예산서", "SERVICE_DATA", "logs")
             budget_app.budget_app()
         elif selected == "교육청 예산서":
-            utils.log_user_action(st.session_state['username'], "viewed 교육청 예산서", "mido_test", "logs")
+            utils.log_user_action(st.session_state['username'], "viewed 교육청 예산서", "SERVICE_DATA", "logs")
             edu_budget_app.edu_budget_app()
         elif selected == "인포21C":
-            utils.log_user_action(st.session_state['username'], "viewed 인포21C", "mido_test", "logs")
+            utils.log_user_action(st.session_state['username'], "viewed 인포21C", "SERVICE_DATA", "logs")
             info21C_app.info21C_app()
         elif selected == "종합쇼핑몰 납품상세 내역":
-            utils.log_user_action(st.session_state['username'], "viewed 종합쇼핑몰 납품상세 내역", "mido_test", "logs")
+            utils.log_user_action(st.session_state['username'], "viewed 종합쇼핑몰 납품상세 내역", "SERVICE_DATA", "logs")
             g2b_app.g2b_app()
         elif selected == "뉴스":
-            utils.log_user_action(st.session_state['username'], "viewed 뉴스", "mido_test", "logs")
+            utils.log_user_action(st.session_state['username'], "viewed 뉴스", "SERVICE_DATA", "logs")
             news_app.news_app()
         elif selected == "STAT":
             utils.log_user_action(st.session_state['username'], "viewed STAT", "mido_test", "logs")

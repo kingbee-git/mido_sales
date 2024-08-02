@@ -10,7 +10,7 @@ def g2b_app():
     g2b_data = utils.load_g2b_data()
 
     today = datetime.now().date()
-    yesterday = today - timedelta(days=1)
+    yesterday = today - timedelta(days=2)
 
     st.header(f"종합쇼핑몰 납품상세 내역 ({g2b_data['납품요구접수일자'].min().strftime('%Y-%m-%d')} ~ {today})")
 
