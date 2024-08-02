@@ -52,18 +52,19 @@ def budget_app():
     tab1, tab2 = st.tabs(["최근 등록된 지자체 예산서", "전체 지자체 예산서"])
 
     with tab1:
+        st.markdown("---")
         st.subheader(f"금일 지자체 예산서 ({today})")
         st.markdown("---")
         filter_data(new_budget_df, 'new_budget_df')
 
         st.markdown("---")
-
         st.subheader(f"최근 등록된 지자체 예산서 ({date_range} ~ {today})")
         st.markdown("---")
         filter_data(latest_budget_df, 'latest_budget_df')
 
 
     with tab2:
+        st.markdown("---")
         st.subheader("전체 지자체 예산서")
         st.markdown("---")
         filter_data(budget_df, 'budget_df')

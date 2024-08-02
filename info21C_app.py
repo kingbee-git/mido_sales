@@ -49,16 +49,19 @@ def info21C_app():
         tab1, tab2, tab3 = st.tabs(['공사입찰', '용역입찰', '구매입찰'])
 
         with tab1:
+            st.markdown("---")
             st.subheader(f"공사입찰")
             st.markdown("---")
             filter_data(info_con_df, 'info_con_df')
 
         with tab2:
+            st.markdown("---")
             st.subheader(f"용역입찰")
             st.markdown("---")
             filter_data(info_ser_df, 'info_ser_df')
 
         with tab3:
+            st.markdown("---")
             st.subheader(f"구매입찰")
             st.markdown("---")
             filter_data(info_pur_df, 'info_pur_df')
