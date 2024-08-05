@@ -7,7 +7,7 @@ from datetime import datetime, timedelta
 import utils
 
 def filter_data(df, key_prefix):
-    key_column_index = df.columns.get_loc('과업명')
+    key_column_index = df.columns.get_loc('세부사업명')
     key_column = st.selectbox(
         '필터링할 열 선택',
         df.columns,
@@ -40,8 +40,7 @@ def filter_data(df, key_prefix):
 
 def budget_app():
     budget_df = utils.load_budget_data()
-    new_budget_df = utils.load_budget_data()
-    latest_budget_df = utils.load_budget_data()
+    new_budget_df, latest_budget_df = utils.load_latest_budget_data()
 
     today = datetime.now().date()
     date_range = today - timedelta(days=30)

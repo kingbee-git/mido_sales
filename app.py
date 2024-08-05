@@ -33,13 +33,13 @@ def login(username, password):
             st.session_state['username'] = username
             st.session_state['jobTitle'] = users[username]['jobTitle']
 
-            utils.log_user_action(username, "login", "mido_test", "logs")
+            utils.log_user_action(username, "login", "SERVICE_DATA", "logs")
             return True
     return False
 
 
 def logout():
-    utils.log_user_action(st.session_state['username'], "logout", "mido_test", "logs")
+    utils.log_user_action(st.session_state['username'], "logout", "SERVICE_DATA", "logs")
     st.session_state['logged_in'] = False
     st.session_state['username'] = None
     st.session_state['jobTitle'] = None
@@ -128,7 +128,7 @@ def main():
             utils.log_user_action(st.session_state['username'], "viewed 뉴스", "SERVICE_DATA", "logs")
             news_app.news_app()
         elif selected == "STAT":
-            utils.log_user_action(st.session_state['username'], "viewed STAT", "mido_test", "logs")
+            utils.log_user_action(st.session_state['username'], "viewed STAT", "SERVICE_DATA", "logs")
             stat_app.stat_app()
 
     else:

@@ -45,6 +45,25 @@ def get_dataframe_from_bigquery(dataset_id, table_id):
 
     return df
 
+
+def get_dataframe_from_bigquery_by_date(dataset_id, table_id, start_date, end_date):
+
+    client = bigquery.Client(credentials=credentials, project=credentials.project_id)
+
+    start_date = pd.to_datetime(start_date, format='%Y%m%d').date().strftime('%Y-%m-%d')
+    end_date = pd.to_datetime(end_date, format='%Y%m%d').date().strftime('%Y-%m-%d')
+
+    query = f"""
+    SELECT *
+    FROM `{dataset_id}.{table_id}`
+    WHERE collection_Date BETWEEN '{start_date}' AND '{end_date}'
+    """
+
+    # 쿼리 실행
+    df = client.query(query).to_dataframe()
+
+    return df
+
 def get_geodataframe_from_bigquery(dataset_id, table_id):
 
     # 빅쿼리 클라이언트 객체 생성
@@ -99,20 +118,62 @@ def load_users_data():
 
 @st.cache_data(ttl=3600)
 def load_budget_data():
-    budget_df = get_dataframe_from_bigquery('RAW_DATA', 'edu_budget_data')
+    today = datetime.now().date()
+
+    budget_df = get_dataframe_from_bigquery_by_date('DATA_WAREHOUSE', 'budget_data', today, today)
+
+    numeric_columns = ['예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액']
+
+    for column in numeric_columns:
+        if column in budget_df.columns:
+            budget_df[column] = budget_df[column].str.replace(',', '')
+            budget_df[column] = pd.to_numeric(budget_df[column], errors='coerce')
 
     columns_to_view = [
-        '도광역시', '시군구', '구분', '과업명', '금액', '면적', '예산집행'
+        'collection_Date', '회계연도', '지역코드', '지역명', '자치단체코드', '자치단체명', '회계구분코드',
+        '회계구분명', '부서코드', '세부사업코드', '세부사업명', '집행일자', '예산현액', '국비', '시도비', '시군구비',
+        '기타', '지출액', '편성액', '분야코드', '분야명', '부문코드', '부문명', '행정자치단체코드'
     ]
 
     budget_df = budget_df[columns_to_view]
-    budget_df = budget_df.sort_values(by=['도광역시', '시군구'])
+    budget_df = budget_df.sort_values(by='collection_Date', ascending=False)
 
     return budget_df
 
+def load_latest_budget_data():
+
+    new_budget_data = get_dataframe_from_bigquery('DATA_MARTS', 'new_budget_data')
+    latest_budget_data = get_dataframe_from_bigquery('DATA_MARTS', 'latest_budget_data')
+
+    numeric_columns = ['예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액']
+
+    for column in numeric_columns:
+        if column in new_budget_data.columns:
+            new_budget_data[column] = new_budget_data[column].str.replace(',', '')
+            new_budget_data[column] = pd.to_numeric(new_budget_data[column], errors='coerce')
+
+    for column in numeric_columns:
+        if column in latest_budget_data.columns:
+            latest_budget_data[column] = latest_budget_data[column].str.replace(',', '')
+            latest_budget_data[column] = pd.to_numeric(latest_budget_data[column], errors='coerce')
+
+    columns_to_view = [
+        '회계연도', '지역코드', '지역명', '자치단체코드', '자치단체명', '회계구분코드',
+        '회계구분명', '부서코드', '세부사업코드', '세부사업명', '예산현액', '국비', '시도비', '시군구비',
+        '기타', '지출액', '편성액', '분야코드', '분야명', '부문코드', '부문명', '행정자치단체코드'
+    ]
+
+    new_budget_data = new_budget_data[columns_to_view]
+    new_budget_data = new_budget_data.sort_values(by='자치단체명')
+
+    latest_budget_data = latest_budget_data[columns_to_view]
+    latest_budget_data = latest_budget_data.sort_values(by='자치단체명')
+
+    return new_budget_data, latest_budget_data
+
 @st.cache_data(ttl=3600)
 def load_edu_budget_data():
-    edu_budget_df = get_dataframe_from_bigquery('RAW_DATA', 'edu_budget_data')
+    edu_budget_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'edu_budget_data')
 
     numeric_columns = ['금액', '면적']
 
@@ -134,7 +195,7 @@ def load_edu_budget_data():
 def load_info_con_data():
     # 공사입찰/공사낙찰
 
-    bir_con_df = get_dataframe_from_bigquery('RAW_DATA', 'bid_con_data')
+    bir_con_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'bid_con_data')
     # suc_con_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_con_data')
 
     today = datetime.now().date()
@@ -172,7 +233,7 @@ def load_info_con_data():
 def load_info_ser_data():
     # 용역입찰/용역낙찰
 
-    bir_ser_df = get_dataframe_from_bigquery('RAW_DATA', 'bid_ser_data')
+    bir_ser_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'bid_ser_data')
     # suc_ser_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_ser_data')
 
     today = datetime.now().date()
@@ -210,7 +271,7 @@ def load_info_ser_data():
 def load_info_pur_data():
     # 구매입찰/구매낙찰
 
-    bir_pur_df = get_dataframe_from_bigquery('RAW_DATA', 'bid_pur_data')
+    bir_pur_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'bid_pur_data')
     # suc_pur_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_pur_data')
 
     today = datetime.now().date()
@@ -247,7 +308,7 @@ def load_info_pur_data():
 
 @st.cache_data(ttl=3600)
 def load_g2b_data():
-    g2b_df = get_dataframe_from_bigquery('RAW_DATA', 'g2b_data')
+    g2b_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'g2b_data')
 
     g2b_df['수요기관지역명'] = g2b_df['수요기관지역명'].replace({'강원도': '강원특별자치도', '전라북도': '전북특별자치도'}, regex=True)
 
@@ -267,13 +328,7 @@ def load_g2b_data():
 
     g2b_df = g2b_df[columns_to_view]
 
-    g2b_df = g2b_df[g2b_df['품명'] == '인조잔디']
-
     g2b_df['납품요구접수일자'] = pd.to_datetime(g2b_df['납품요구접수일자'], errors='coerce')
-    g2b_df['납품요구변경차수'] = g2b_df['납품요구변경차수'].astype(int)
-
-    idx = g2b_df.groupby(['납품요구번호', '물품순번'])['납품요구변경차수'].idxmax()
-    g2b_df = g2b_df.loc[idx].reset_index(drop=True)
 
     g2b_df['단가'] = pd.to_numeric(g2b_df['단가'], errors='coerce')
     g2b_df['수량'] = pd.to_numeric(g2b_df['수량'], errors='coerce')
@@ -302,7 +357,7 @@ def load_g2b_data():
 
 @st.cache_data(ttl=3600)
 def load_news_data():
-    news_df = get_dataframe_from_bigquery('RAW_DATA', 'news_data').sort_values('기사날짜', ascending=False)
+    news_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'news_data').sort_values('기사날짜', ascending=False)
 
     today = datetime.now().date()
     latest = today - timedelta(days=3)

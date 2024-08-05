@@ -6,7 +6,7 @@ import pandas as pd
 import utils
 
 def filter_data(df, key_prefix):
-    key_column_index = df.columns.get_loc('공고명공고번호')
+    key_column_index = df.columns.get_loc('공고명')
     key_column = st.selectbox(
         '필터링할 열 선택',
         df.columns,
