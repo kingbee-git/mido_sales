@@ -16,7 +16,6 @@ import time
 import warnings
 warnings.filterwarnings("ignore")
 
-
 def load_users_data():
     users_data = utils.load_users_data()
     return users_data

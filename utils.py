@@ -227,6 +227,12 @@ def load_info_con_data():
 
     info_con_df = bir_con_df.sort_values(by='입력일', ascending=False)
 
+    view_columns = [
+        '입력일', '공고명', '발주기관', '추정가격', '기초금액', '투찰마감', '개찰일', '업종', '지역', '분류'
+    ]
+
+    info_con_df = info_con_df[view_columns]
+
     return info_con_df
 
 @st.cache_data(ttl=3600)
@@ -265,6 +271,12 @@ def load_info_ser_data():
 
     info_ser_df = bir_ser_df.sort_values(by='입력일', ascending=False)
 
+    view_columns = [
+        '입력일', '공고명', '발주기관', '추정가격', '기초금액', '투찰마감', '개찰일', '업종', '지역', '분류'
+    ]
+
+    info_ser_df = info_ser_df[view_columns]
+
     return info_ser_df
 
 @st.cache_data(ttl=3600)
@@ -302,6 +314,12 @@ def load_info_pur_data():
             bir_pur_df[column] = pd.to_numeric(bir_pur_df[column], errors='coerce')
 
     info_pur_df = bir_pur_df.sort_values(by='투찰마감', ascending=False)
+
+    view_columns = [
+        '공고명', '기초금액', '업종', '참가마감', '투찰마감', '개찰일', '분류'
+    ]
+
+    info_pur_df = info_pur_df[view_columns]
 
     return info_pur_df
 
