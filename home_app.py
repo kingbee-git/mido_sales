@@ -10,7 +10,7 @@ import plotly.graph_objects as go
 import utils
 
 def home_app():
-    g2b_data = utils.load_g2b_data()
+    g2b_data = utils.load_current_year_g2b_data()
 
     current_year = datetime.now().year
     st.header(f"{current_year} 년 납품 현황 (미도플러스/에코그라운드)")

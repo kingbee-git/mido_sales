@@ -209,24 +209,7 @@ def load_edu_budget_data():
 def load_info_con_data():
     # 공사입찰/공사낙찰
 
-    bir_con_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'bid_con_data')
-    # suc_con_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_con_data')
-
-    today = datetime.now().date()
-
-    bir_con_df['입력일'] = pd.to_datetime(bir_con_df['입력일'], format='%y.%m.%d', errors='coerce')
-    bir_con_df['투찰마감'] = pd.to_datetime(bir_con_df['투찰마감'], format='%y.%m.%d(%H:%M)', errors='coerce')
-
-    bir_con_df['개찰일'] = bir_con_df['개찰일'].astype(str)
-    bir_con_df['개찰일_full'] = pd.to_datetime(bir_con_df['개찰일'], format='%y.%m.%d(%H:%M)', errors='coerce')
-
-    mask = bir_con_df['개찰일_full'].isna()
-
-    bir_con_df.loc[mask, '개찰일_fallback'] = pd.to_datetime(bir_con_df.loc[mask, '개찰일'], format='%y.%m.%d', errors='coerce')
-    bir_con_df['개찰일'] = bir_con_df['개찰일_full'].combine_first(bir_con_df['개찰일_fallback'])
-    bir_con_df.drop(columns=['개찰일_full', '개찰일_fallback'], inplace=True)
-
-    bir_con_df = bir_con_df[bir_con_df['투찰마감'].dt.date >= today]
+    bir_con_df = get_dataframe_from_bigquery('DATA_MARTS', 'bid_con_data')
 
     bir_con_df['입력일'] = pd.to_datetime(bir_con_df['입력일']).dt.strftime('%Y-%m-%d')
     bir_con_df['투찰마감'] = pd.to_datetime(bir_con_df['투찰마감']).dt.strftime('%Y-%m-%d')
@@ -253,24 +236,7 @@ def load_info_con_data():
 def load_info_ser_data():
     # 용역입찰/용역낙찰
 
-    bir_ser_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'bid_ser_data')
-    # suc_ser_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_ser_data')
-
-    today = datetime.now().date()
-
-    bir_ser_df['입력일'] = pd.to_datetime(bir_ser_df['입력일'], format='%y.%m.%d', errors='coerce')
-    bir_ser_df['투찰마감'] = pd.to_datetime(bir_ser_df['투찰마감'], format='%y.%m.%d(%H:%M)', errors='coerce')
-
-    bir_ser_df['개찰일'] = bir_ser_df['개찰일'].astype(str)
-    bir_ser_df['개찰일_full'] = pd.to_datetime(bir_ser_df['개찰일'], format='%y.%m.%d(%H:%M)', errors='coerce')
-
-    mask = bir_ser_df['개찰일_full'].isna()
-
-    bir_ser_df.loc[mask, '개찰일_fallback'] = pd.to_datetime(bir_ser_df.loc[mask, '개찰일'], format='%y.%m.%d', errors='coerce')
-    bir_ser_df['개찰일'] = bir_ser_df['개찰일_full'].combine_first(bir_ser_df['개찰일_fallback'])
-    bir_ser_df.drop(columns=['개찰일_full', '개찰일_fallback'], inplace=True)
-
-    bir_ser_df = bir_ser_df[bir_ser_df['투찰마감'].dt.date >= today]
+    bir_ser_df = get_dataframe_from_bigquery('DATA_MARTS', 'bid_ser_data')
 
     bir_ser_df['입력일'] = pd.to_datetime(bir_ser_df['입력일']).dt.strftime('%Y-%m-%d')
     bir_ser_df['투찰마감'] = pd.to_datetime(bir_ser_df['투찰마감']).dt.strftime('%Y-%m-%d')
@@ -297,24 +263,7 @@ def load_info_ser_data():
 def load_info_pur_data():
     # 구매입찰/구매낙찰
 
-    bir_pur_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'bid_pur_data')
-    # suc_pur_df = get_dataframe_from_bigquery('RAW_DATA', 'suc_pur_data')
-
-    today = datetime.now().date()
-
-    bir_pur_df['참가마감'] = pd.to_datetime(bir_pur_df['참가마감'], format='%y.%m.%d(%H:%M)', errors='coerce')
-    bir_pur_df['투찰마감'] = pd.to_datetime(bir_pur_df['투찰마감'], format='%y.%m.%d(%H:%M)', errors='coerce')
-
-    bir_pur_df['개찰일'] = bir_pur_df['개찰일'].astype(str)
-    bir_pur_df['개찰일_full'] = pd.to_datetime(bir_pur_df['개찰일'], format='%y.%m.%d(%H:%M)', errors='coerce')
-
-    mask = bir_pur_df['개찰일_full'].isna()
-
-    bir_pur_df.loc[mask, '개찰일_fallback'] = pd.to_datetime(bir_pur_df.loc[mask, '개찰일'], format='%y.%m.%d', errors='coerce')
-    bir_pur_df['개찰일'] = bir_pur_df['개찰일_full'].combine_first(bir_pur_df['개찰일_fallback'])
-    bir_pur_df.drop(columns=['개찰일_full', '개찰일_fallback'], inplace=True)
-
-    bir_pur_df = bir_pur_df[bir_pur_df['개찰일'].dt.date >= today]
+    bir_pur_df = get_dataframe_from_bigquery('DATA_MARTS', 'bid_pur_data')
 
     bir_pur_df['참가마감'] = pd.to_datetime(bir_pur_df['참가마감']).dt.strftime('%Y-%m-%d')
     bir_pur_df['투찰마감'] = pd.to_datetime(bir_pur_df['투찰마감']).dt.strftime('%Y-%m-%d')
@@ -337,6 +286,54 @@ def load_info_pur_data():
 
     return info_pur_df
 
+@st.cache_data(ttl=3600)
+def load_current_year_g2b_data():
+    g2b_df = get_dataframe_from_bigquery('DATA_MARTS', 'g2b_data')
+
+    g2b_df['수요기관지역명'] = g2b_df['수요기관지역명'].replace({'강원도': '강원특별자치도', '전라북도': '전북특별자치도'}, regex=True)
+
+    g2b_df['도광역시'] = g2b_df['수요기관지역명'].apply(lambda x: x.split(' ')[0])
+    g2b_df['시군구'] = g2b_df['수요기관지역명'].apply(lambda x: x.split(' ')[1] if len(x.split(' ')) > 1 else None)
+
+    columns_to_view = [
+        '납품요구번호', '납품요구변경차수', '납품요구접수일자', '물품순번', '물품분류번호',
+        '품명', '세부물품분류번호', '세부품명', '물품식별번호', '품목', '단가', '단위',
+        '수량', '금액', '납품기한일자', '계약구분', '우수제품여부', '옵션구분', '수요기관코드',
+        '수요기관명', '수요기관구분', '수요기관지역명', '업체명', '최종납품요구여부',
+        '증감납품요구수량', '증감납품요구금액', '업체사업자등록번호', '납품요구건명',
+        '계약번호', '계약변경차수', '다수공급자계약여부', '공사용자재직접구매대상여부',
+        '최초납품요구접수일자', '납품요구수량', '납품요구금액', '중소기업자간경쟁제품여부',
+        '업체기업구분명', '납품요구지청명', '도광역시', '시군구'
+    ]
+
+    g2b_df = g2b_df[columns_to_view]
+
+    g2b_df['납품요구접수일자'] = pd.to_datetime(g2b_df['납품요구접수일자'], errors='coerce')
+
+    g2b_df['단가'] = pd.to_numeric(g2b_df['단가'], errors='coerce')
+    g2b_df['수량'] = pd.to_numeric(g2b_df['수량'], errors='coerce')
+    g2b_df['금액'] = pd.to_numeric(g2b_df['금액'], errors='coerce')
+
+    g2b_df = g2b_df.sort_values(by='납품요구접수일자', ascending=False)
+
+    # Load the JSON data from the file
+    with open('region.json', 'r', encoding='utf-8') as file:
+        regions = json.load(file)
+
+    def get_lat_long(row):
+        if pd.isna(row['시군구']):
+            region_key = f"{row['도광역시']}/"
+        else:
+            region_key = f"{row['도광역시']}/{row['시군구']}"
+
+        if region_key in regions:
+            return regions[region_key]["lat"], regions[region_key]["long"]
+        else:
+            return None, None
+
+    g2b_df[['위도', '경도']] = g2b_df.apply(get_lat_long, axis=1, result_type='expand')
+
+    return g2b_df
 
 @st.cache_data(ttl=3600)
 def load_g2b_data():
@@ -389,7 +386,7 @@ def load_g2b_data():
 
 @st.cache_data(ttl=3600)
 def load_news_data():
-    news_df = get_dataframe_from_bigquery('DATA_WAREHOUSE', 'news_data').sort_values('기사날짜', ascending=False)
+    news_df = get_dataframe_from_bigquery('DATA_MARTS', 'news_data').sort_values('기사날짜', ascending=False)
 
     today = datetime.now().date()
     latest = today - timedelta(days=3)
