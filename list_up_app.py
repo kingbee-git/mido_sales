@@ -15,11 +15,11 @@ def list_up_app():
     st.header("예산 사업 현황")
     st.markdown("---")
 
-    tab1, tab2 = st.tabs(["**지자체 예산 현황**", "**교육청 예산 현황**"])
+    tab1, tab2 = st.tabs(["지자체 예산 현황", "교육청 예산 현황"])
 
     with tab1:
         st.markdown("---")
-        st.subheader("**지자체 예산 현황**")
+        st.subheader("지자체 예산 현황")
         st.markdown("---")
 
         # CSV 업로드
@@ -86,7 +86,7 @@ def list_up_app():
 
     with tab2:
         st.markdown("---")
-        st.subheader("**교육청 예산 현황**")
+        st.subheader("교육청 예산 현황")
         st.markdown("---")
 
         # CSV 업로드
