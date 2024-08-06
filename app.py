@@ -4,7 +4,7 @@ from streamlit_option_menu import option_menu
 
 import utils
 import home_app
-import listup_app
+import list_up_app
 import budget_app
 import edu_budget_app
 import info21C_app
@@ -110,7 +110,7 @@ def main():
             home_app.home_app()
         elif selected == "사업 현황":
             utils.log_user_action(st.session_state['username'], "viewed list", "SERVICE_DATA", "logs")
-            listup_app.listup_app()
+            list_up_app.list_up_app()
         elif selected == "지자체 예산서":
             utils.log_user_action(st.session_state['username'], "viewed 지자체 예산서", "SERVICE_DATA", "logs")
             budget_app.budget_app()

@@ -23,6 +23,14 @@ def save_dataframe_to_bigquery(df, dataset_id, table_id):
     # 테이블 레퍼런스 생성
     table_ref = client.dataset(dataset_id).table(table_id)
 
+    # 'bool' 타입 열을 제외한 나머지 열에 대한 처리
+    non_bool_columns = df.select_dtypes(exclude=['bool']).columns
+    df[non_bool_columns] = df[non_bool_columns].astype(str).replace('nan', '').replace('None', '').replace('', '')
+
+    # 'bool' 타입 열에 대한 처리 (변환 없이 그대로 유지)
+    bool_columns = df.select_dtypes(include=['bool']).columns
+    df[bool_columns] = df[bool_columns]
+
     # 데이터프레임을 BigQuery 테이블에 적재
     job_config = bigquery.LoadJobConfig()
     job_config.write_disposition = "WRITE_TRUNCATE"  # 기존 테이블 내용 삭제 후 삽입
@@ -115,6 +123,16 @@ def load_users_data():
     users = users[['employeeName', 'jobTitle', 'password']]
 
     return users
+
+@st.cache_data(ttl=300)
+def load_list_up_data():
+    list_up_budget_data = get_dataframe_from_bigquery('DATA_MARTS', 'list_up_budget_data')
+    list_up_edu_budget_data = get_dataframe_from_bigquery('DATA_MARTS', 'list_up_edu_budget_data')
+
+    list_up_budget_data = list_up_budget_data.sort_values(by=['지역명', '자치단체명'])
+    list_up_edu_budget_data = list_up_edu_budget_data.sort_values(by=['도광역시', '시군구'])
+
+    return list_up_budget_data, list_up_edu_budget_data
 
 @st.cache_data(ttl=3600)
 def load_budget_data():
