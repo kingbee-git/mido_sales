@@ -130,13 +130,13 @@ def load_budget_data():
             budget_df[column] = pd.to_numeric(budget_df[column], errors='coerce')
 
     columns_to_view = [
-        'collection_Date', '회계연도', '지역코드', '지역명', '자치단체코드', '자치단체명', '회계구분코드',
-        '회계구분명', '부서코드', '세부사업코드', '세부사업명', '집행일자', '예산현액', '국비', '시도비', '시군구비',
+        '회계연도', '지역코드', '지역명', '자치단체코드', '자치단체명', '회계구분코드',
+        '회계구분명', '부서코드', '세부사업코드', '세부사업명', '예산현액', '국비', '시도비', '시군구비',
         '기타', '지출액', '편성액', '분야코드', '분야명', '부문코드', '부문명', '행정자치단체코드'
     ]
 
     budget_df = budget_df[columns_to_view]
-    budget_df = budget_df.sort_values(by='collection_Date', ascending=False)
+    budget_df = budget_df.sort_values(by='자치단체명')
 
     return budget_df
 
