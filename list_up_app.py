@@ -25,7 +25,7 @@ def list_up_app():
         # CSV 업로드
         uploaded_file = st.file_uploader("지자체 예산 CSV 파일 업로드", type="csv", key='list_up_budget_file_uploader')
 
-        utils.save_dataframe_to_bigquery(list_up_budget_data, 'DATA_MARTS', f'list_up_budget_data_{today}')
+        utils.save_dataframe_to_bigquery(list_up_budget_data, 'list_up_data_backup', f'list_up_budget_data_{today}')
 
         if uploaded_file is not None:
             # 업로드된 CSV 파일 읽기
@@ -92,7 +92,7 @@ def list_up_app():
         # CSV 업로드
         uploaded_file = st.file_uploader("교육청 예산 CSV 파일 업로드", type="csv", key='list_up_edu_budget_file_uploader')
 
-        utils.save_dataframe_to_bigquery(list_up_edu_budget_data, 'DATA_MARTS', f'list_up_edu_budget_data_{today}')
+        utils.save_dataframe_to_bigquery(list_up_edu_budget_data, 'list_up_data_backup', f'list_up_edu_budget_data_{today}')
 
         if uploaded_file is not None:
             # 업로드된 CSV 파일 읽기
