@@ -8,7 +8,7 @@ from datetime import datetime, timedelta
 import utils
 
 def list_up_app():
-    today = datetime.now().date()
+    today = datetime.now().strftime('%Y%m%d_%H%M%S')
 
     list_up_budget_data, list_up_edu_budget_data = utils.load_list_up_data()
 
