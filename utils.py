@@ -130,9 +130,7 @@ def load_budget_data():
             budget_df[column] = pd.to_numeric(budget_df[column], errors='coerce')
 
     columns_to_view = [
-        '회계연도', '지역코드', '지역명', '자치단체코드', '자치단체명', '회계구분코드',
-        '회계구분명', '부서코드', '세부사업코드', '세부사업명', '예산현액', '국비', '시도비', '시군구비',
-        '기타', '지출액', '편성액', '분야코드', '분야명', '부문코드', '부문명', '행정자치단체코드'
+        '지역명', '자치단체명', '세부사업명', '예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액'
     ]
 
     budget_df = budget_df[columns_to_view]
@@ -158,9 +156,7 @@ def load_latest_budget_data():
             latest_budget_data[column] = pd.to_numeric(latest_budget_data[column], errors='coerce')
 
     columns_to_view = [
-        '회계연도', '지역코드', '지역명', '자치단체코드', '자치단체명', '회계구분코드',
-        '회계구분명', '부서코드', '세부사업코드', '세부사업명', '예산현액', '국비', '시도비', '시군구비',
-        '기타', '지출액', '편성액', '분야코드', '분야명', '부문코드', '부문명', '행정자치단체코드'
+        '지역명', '자치단체명', '세부사업명', '예산현액', '국비', '시도비', '시군구비', '기타', '지출액', '편성액'
     ]
 
     new_budget_data = new_budget_data[columns_to_view]
