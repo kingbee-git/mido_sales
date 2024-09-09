@@ -135,6 +135,19 @@ def load_list_up_data():
     return list_up_budget_data, list_up_edu_budget_data
 
 @st.cache_data(ttl=3600)
+def load_budget_link_data():
+    budget_link_df = get_dataframe_from_bigquery('RAW_DATA', 'budget_link')
+
+    columns_to_view = [
+        '지역명', '자치단체명', 'URL'
+    ]
+
+    budget_link_df = budget_link_df[columns_to_view]
+    budget_link_df = budget_link_df.sort_values(by=['지역명', '자치단체명'])
+
+    return budget_link_df
+
+@st.cache_data(ttl=3600)
 def load_budget_data():
     today = datetime.now().date()
 

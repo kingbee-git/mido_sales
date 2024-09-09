@@ -41,6 +41,7 @@ def filter_data(df, key_prefix):
 def budget_app():
     budget_df = utils.load_budget_data()
     new_budget_df, latest_budget_df = utils.load_latest_budget_data()
+    budget_link = utils.load_budget_link_data()
 
     today = datetime.now().date()
     date_range = today - timedelta(days=30)
@@ -48,7 +49,7 @@ def budget_app():
     st.header("지자체 예산서")
     st.markdown("---")
 
-    tab1, tab2 = st.tabs(["최근 등록된 지자체 예산서", "전체 지자체 예산서"])
+    tab1, tab2, tab3 = st.tabs(["최근 등록된 지자체 예산서", "전체 지자체 예산서", "지자체 예산서 링크"])
 
     with tab1:
         st.markdown("---")
@@ -67,3 +68,37 @@ def budget_app():
         st.subheader("전체 지자체 예산서")
         st.markdown("---")
         filter_data(budget_df, 'budget_df')
+
+    with tab3:
+        st.markdown("---")
+        st.subheader("지자체 예산서 링크")
+        st.markdown("---")
+
+        key_column = st.selectbox(
+            '필터링할 열 선택',
+            ['지역명', '자치단체명'],
+            index=0,
+            key='key_column'
+        )
+
+        search_term = st.text_input(f'{key_column}에서 검색할 내용 입력', key='search_term')
+
+        if search_term:
+            budget_link = budget_link[budget_link[key_column].str.contains(search_term, case=False, na=False)]
+        else:
+            budget_link = budget_link
+
+        st.data_editor(
+            budget_link,
+            column_config={
+                "URL": st.column_config.LinkColumn(
+                    "URL",
+                    display_text="URL",
+                    help="지자체 예산서 링크",
+                    validate="^https?://",
+                    max_chars=100
+                )
+            },
+            hide_index=True,
+        )
+
